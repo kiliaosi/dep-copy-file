@@ -1,0 +1,25 @@
+{
+  "name": "dep-copy-file",
+  "version": "1.0.1",
+  "description": "Copies of documents and folders",
+  "main": "index.js",
+  "keywords": [
+    "copy",
+    "copy file",
+    "copy-dir",
+    "copy-directory"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kiliaosi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiliaosi/dep-copy-file.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kiliaosi/dep-copy-file/issues"
+  },
+  "homepage": "https://github.com/kiliaosi/dep-copy-file#readme"
+}

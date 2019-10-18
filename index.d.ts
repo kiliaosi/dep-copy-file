@@ -1,0 +1,1 @@
+export function copyDep(source:string,dest:string): Promise<string>;
