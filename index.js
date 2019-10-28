@@ -11,7 +11,7 @@ function check(name) {
     throw new Error(`no such file or directory：${name}`);
   }
 }
-async function copyFile(source, dest) {
+function copyFile(source, dest) {
   try {
     check(source);
     const readStream = fs.createReadStream(source);
@@ -19,35 +19,42 @@ async function copyFile(source, dest) {
     readStream.pipe(writeStream);
     return Promise.resolve("ok");
   } catch (error) {
-    return Promise.reject("failed");
+    return Promise.reject(error);
   }
 }
-async function copyDir(source, dest) {
-  check(source);
-  const stat = await statAsync(source);
-  if (!stat.isDirectory()) {
-    throw new Error(`${source} is not a directory`);
-  }
-  try {
-    const directory = await readdirAsync(source);
-    for (let item of directory) {
-      const stat = await statAsync(path.join(source,item));
-      if (!stat.isDirectory()) {
-       const sourceItem = path.join(source, item);
-       const destItem = path.join(dest, item);
-       await copyFile(sourceItem,destItem); 
-     } else {
-        const newDestPath = path.join(dest, item);
-        const newSourcePath = path.join(source, item);
-        await mkdirAsync(newDestPath);
-        await copyDir(newSourcePath, newDestPath);
-      }
-    }
 
-    return Promise.resolve("ok");
-  } catch (error) {
-      console.log(error)
-    return Promise.reject("failed");
+
+function operation(){
+  const tasks = [];
+  return async function copyDir(source, dest) {
+    check(source);
+    const stat = await statAsync(source);
+    if (!stat.isDirectory()) {
+      throw new Error(`${source} is not a directory`);
+    }
+    try {
+      const directory = await readdirAsync(source);
+      for (let item of directory) {
+        const stat = await statAsync(path.join(source,item));
+        if (!stat.isDirectory()) {
+         const sourceItem = path.join(source, item);
+         const destItem = path.join(dest, item);
+         tasks.push(copyFile(sourceItem,destItem)) ; 
+       } else {
+          const newDestPath = path.join(dest, item);
+          const newSourcePath = path.join(source, item);
+          if(!fs.existsSync(newDestPath)){
+            await mkdirAsync(newDestPath);
+          }
+          copyDir(newSourcePath, newDestPath);
+        }
+      }
+  
+      return Promise.all(tasks);
+    } catch (error) {
+        console.log(error)
+      return Promise.reject(error);
+    }
   }
 }
 
@@ -62,7 +69,7 @@ async function copyDep(source, dest) {
     if (!fs.existsSync(dest)) {
       await mkdirAsync(dest, { recursive: true });
     }
-    return await copyDir(source, dest);
+    return await operation()(source, dest);
   }
  return await copyFile(source, dest);
 }
